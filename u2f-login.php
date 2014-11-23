@@ -105,7 +105,7 @@ class U2F {
 			</form>
 
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
-			<span class="button button-primary button-large"><?php _e('Register', 'u2f'); ?></span>
+			<span class="button button-primary button-large" id="u2f-register"><?php _e('Register', 'u2f'); ?></span>
 		</div><!-- wrap -->
 	<?php
 	}
