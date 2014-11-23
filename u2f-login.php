@@ -98,14 +98,14 @@ class U2F {
 		?>
 		<div class="wrap">
 			<h2><?php _e('Security Key', 'u2f'); ?></h2>
-			<h3><?php _e('Associated Security Keys', 'u2f'); ?></h3>
+			<h3><?php _e('Security Keys associated with your account', 'u2f'); ?></h3>
 			<form method="get">
 				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
 				<?php $list_table->display() ?>
 			</form>
-			Name|Added Date|Last Used Date
-			<h3><?php _e('Add Other Security Key', 'u2f'); ?></h3>
-			Register Form comes here!
+
+			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
+			<span class="button button-primary button-large"><?php _e('Register', 'u2f'); ?></span>
 		</div><!-- wrap -->
 	<?php
 	}
