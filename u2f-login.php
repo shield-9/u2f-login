@@ -46,8 +46,9 @@ class U2F {
 	}
 
 	private function __construct() {
-	//	add_filter('authenticate',    array( &$this, 'authenticate'),    25, 3);
-		add_action('admin_menu',      array( &$this, 'users_menu') );
+	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
+		add_action('admin_menu', array( &$this, 'users_menu') );
+		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
 
 		add_filter('plugin_row_meta', array( &$this, 'plugin_row_meta'), 10, 2);
 	}
@@ -77,10 +78,15 @@ class U2F {
 			<h2><?php _e('Security Key', 'u2f'); ?></h2>
 			<h3><?php _e('Associated Security Keys', 'u2f'); ?></h3>
 			List Table comes here!
+			Name|Added Date|Last Used Date
 			<h3><?php _e('Add Other Security Key', 'u2f'); ?></h3>
 			Register Form comes here!
 		</div>
 	<?php
+	}
+
+	public function admin_print_scripts() {
+		echo '<script src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>' . PHP_EOL;
 	}
 
 	static function plugin_textdomain() {
