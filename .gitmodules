@@ -1,0 +1,3 @@
+[submodule "lib/php-u2flib-server"]
+	path = lib/php-u2flib-server
+	url = https://github.com/shield-9/php-u2flib-server.git
