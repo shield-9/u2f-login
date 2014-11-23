@@ -73,15 +73,40 @@ class U2F {
 	}
 
 	public function render_users_menu() {
-	?>
+		if( ! class_exists('WP_List_Table') ) {
+			require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php');
+		}
+
+		$data = array(
+			array(
+				'id'        => 1,
+				'name'      => 'YubiKey NEO',
+				'added'     => 1414041511,
+				'last_used' => time(),
+			),
+			array(
+				'id'        => 2,
+				'name'      => 'YubiKey Standard',
+				'added'     => 1411449511,
+				'last_used' => time() - 10000,
+			),
+		);
+
+		require_once( plugin_dir_path( __FILE__ ) . 'class.list-table.php');
+		$list_table = new U2F_List_Table( $data );
+		$list_table->prepare_items();
+		?>
 		<div class="wrap">
 			<h2><?php _e('Security Key', 'u2f'); ?></h2>
 			<h3><?php _e('Associated Security Keys', 'u2f'); ?></h3>
-			List Table comes here!
+			<form method="get">
+				<input type="hidden" name="page" value="<?php echo $_REQUEST['page'] ?>" />
+				<?php $list_table->display() ?>
+			</form>
 			Name|Added Date|Last Used Date
 			<h3><?php _e('Add Other Security Key', 'u2f'); ?></h3>
 			Register Form comes here!
-		</div>
+		</div><!-- wrap -->
 	<?php
 	}
 
