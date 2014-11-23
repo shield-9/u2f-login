@@ -4,7 +4,14 @@ jQuery(document).ready(function($) {
 		setTimeout(function() {
 			var request = {"challenge": "CR-2c5Pq9GkgIG9IwAiPLa2jLaXNXlIRY858gbY3zKE", "version": "U2F_V2", "appId": "https://www.extendwings.com"};
 			console.log("Register: ", request);
-			$u2f_reg.text('Now insert (and tap) your Security Key');
+			$u2f_reg.text('Now insert (and tap) your Security Key')
+				.removeClass('button-primary')
+				.append('<div class="circle">')
+				.children(".circle")
+				.append('<div class="semicircle">')
+				.append('<div class="semicircle">')
+				.append('<div class="semicircle">')
+				.append('<div class="semicircle">');
 
 /*
 			u2f.register([request], [], function(data) {

@@ -49,7 +49,7 @@ class U2F {
 	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
 		add_action('admin_menu', array( &$this, 'users_menu') );
 		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
-		add_action('admin_enqueue_scripts', array( &$this, 'admin_enqueue_scripts') );
+		add_action('admin_enqueue_scripts', array( &$this, 'admin_enqueue_assets') );
 
 		add_filter('plugin_row_meta', array( &$this, 'plugin_row_meta'), 10, 2);
 	}
@@ -106,7 +106,9 @@ class U2F {
 			</form>
 
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
-			<span class="button button-primary button-large" id="u2f-register"><?php _e('Register', 'u2f'); ?></span>
+			<div class="button button-primary button-large" id="u2f-register">
+				<?php _e('Register', 'u2f'); ?>
+			</div>
 		</div><!-- wrap -->
 	<?php
 	}
@@ -115,9 +117,10 @@ class U2F {
 		echo '<script src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>' . PHP_EOL;
 	}
 
-	public function admin_enqueue_scripts( $hook ) {
+	public function admin_enqueue_assets( $hook ) {
 		if('users_page_security-key' == $hook ) {
 			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.js', array('jquery'), self::VERSION, true);
+			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.css', array(), self::VERSION);
 		}
 	}
 
