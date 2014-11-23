@@ -11,7 +11,6 @@
  * Domain Path: /languages/
 */
 
-
 if( ! function_exists('add_action') ) {
 	echo 'Hi there!  I\'m just a plugin, not much I can do when called directly.';
 	exit;
@@ -47,7 +46,32 @@ class U2F {
 	}
 
 	private function __construct() {
-		add_filter('plugin_row_meta', array(&$this, 'plugin_row_meta'), 10, 2);
+	//	add_filter('authenticate',    array( &$this, 'authenticate'),    25, 3);
+		add_action('admin_menu',      array( &$this, 'users_menu') );
+
+		add_filter('plugin_row_meta', array( &$this, 'plugin_row_meta'), 10, 2);
+	}
+
+	public function authenticate( $user, $username, $password ) {
+		if(is_a($user, 'WP_User') ) {
+			return $user;
+		}
+
+		if( !empty( $_POST['u2f_token'] )) {
+			$u2f_token = $_POST['u2f_token'];
+			/*
+			Validate token!!
+			*/
+		}
+
+		return false;
+	}
+
+	public function users_menu() {
+		add_users_page(__('Security Key', 'u2f'), __('Your Security Key', 'u2f'), 'read', 'security-key', array( &$this, 'render_users_menu') );
+	}
+
+	public function render_users_menu() {
 	}
 
 	static function plugin_textdomain() {
