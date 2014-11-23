@@ -13,6 +13,12 @@ class U2F_List_Table extends WP_List_Table {
 		) );
 	}
 
+	function print_column_headers( $with_id = true ) {
+		if( $with_id ) {
+			parent::print_column_headers( $with_id );
+		}
+	}
+
 	function extra_tablenav( $which ) {
 		switch( $which ) {
 			case 'top':
