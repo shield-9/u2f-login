@@ -72,6 +72,15 @@ class U2F {
 	}
 
 	public function render_users_menu() {
+	?>
+		<div class="wrap">
+			<h2><?php _e('Security Key', 'u2f'); ?></h2>
+			<h3><?php _e('Associated Security Keys', 'u2f'); ?></h3>
+			List Table comes here!
+			<h3><?php _e('Add Other Security Key', 'u2f'); ?></h3>
+			Register Form comes here!
+		</div>
+	<?php
 	}
 
 	static function plugin_textdomain() {
