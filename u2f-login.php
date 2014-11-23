@@ -74,6 +74,9 @@ class U2F {
 	}
 
 	public function render_users_menu() {
+		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/autoload.php');
+		$u2f = new u2flib_server\U2F( home_url() );
+
 		if( ! class_exists('WP_List_Table') ) {
 			require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php');
 		}
@@ -108,9 +111,22 @@ class U2F {
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
 			<div class="button button-primary button-large" id="u2f-register">
 				<?php _e('Register', 'u2f'); ?>
+		<?php
+		try {
+			$data = $u2f->getRegisterData( array() );
+		} catch( Exception $e ) {
+			echo "error: " . $e->getMessage();
+		}
+
+		list($req,$sigs) = $data;
+		$_SESSION['regReq'] = json_encode($req);
+		echo "var req = " . json_encode($req) . ";";
+		echo "var sigs = " . json_encode($sigs) . ";";
+		echo "var username = '" . $user->name . "';";
+		?>
 			</div>
 		</div><!-- wrap -->
-	<?php
+		<?php
 	}
 
 	public function admin_print_scripts() {
