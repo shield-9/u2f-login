@@ -38,10 +38,10 @@ class U2F_List_Table extends WP_List_Table {
 
 	function get_columns() {
 		$columns = array(
-			'cb'			=> '<input type="checkbox" />',
-			'name'			=> _x('Name', 'Security Key Name', 'u2f'),
-			'added'			=> __('Date Added', 'u2f'),
-			'last_used'		=> __('Last Time Used', 'u2f'),
+			'cb'		=> '<input type="checkbox" />',
+			'name'		=> _x('Name', 'Security Key Name', 'u2f'),
+			'added'		=> __('Date Added', 'u2f'),
+			'last_used'	=> __('Last Time Used', 'u2f'),
 		);
 		return $columns;
 	}
@@ -59,7 +59,7 @@ class U2F_List_Table extends WP_List_Table {
 		return sprintf(
 			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
 			$this->_args['singular'],
-			$item['id']
+			$item['keyHandle']
 		);
 	}
 
@@ -85,10 +85,11 @@ class U2F_List_Table extends WP_List_Table {
 			return false;
 		switch( $this->current_action() ) {
 			case 'delete':
-				foreach( $_GET['id'] as $id )
+				foreach( $_GET['id'] as $id ) {
 					/**
 					 * Delete Security Key Here
 					 */
+				}
 				break;
 		}
 	}

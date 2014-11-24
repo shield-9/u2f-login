@@ -86,20 +86,7 @@ class U2F {
 			require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php');
 		}
 
-		$data = array(
-			array(
-				'id'        => 1,
-				'name'      => 'YubiKey NEO',
-				'added'     => 1414041511,
-				'last_used' => time(),
-			),
-			array(
-				'id'        => 2,
-				'name'      => 'YubiKey Standard',
-				'added'     => 1411449511,
-				'last_used' => time() - 10000,
-			),
-		);
+		$data = get_user_meta( get_current_user_id(), 'u2f_registered_key');
 
 		require_once( plugin_dir_path( __FILE__ ) . 'class.list-table.php');
 		$list_table = new U2F_List_Table( $data );
@@ -116,7 +103,6 @@ class U2F {
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
 			<div class="button button-primary button-large" id="u2f-register">
 				<?php _e('Register', 'u2f'); ?>
-				<?php var_dump(get_user_meta( get_current_user_id(), 'u2f_registered_key')); ?>
 			</div>
 		</div><!-- wrap -->
 		<?php
@@ -153,6 +139,15 @@ class U2F {
 	public function register() {
 		try {
 			$reg = $this->u2f->doRegister( get_transient('u2f_register_request'), (object) $_POST['data'] );
+			$reg = array(
+				'name'       => 'New Security Key',
+				'added'       => time(),
+				'last_used'   => time(),
+				'keyHandle'   => $reg->keyHandle,
+				'publicKey'   => $reg->publicKey,
+				'certificate' => $reg->certificate,
+				'counter'     => $reg->counter,
+			);
 			add_user_meta( get_current_user_id(), 'u2f_registered_key', $reg );
 		} catch( Exception $e ) {
 			echo "alert('error: " . $e->getMessage() . "');";
