@@ -9,6 +9,9 @@ jQuery(document).ready(function($) {
 			registering = !registering;
 		}
 
+		u2f_data.request = JSON.parse(u2f_data.request);
+		u2f_data.sigs    = JSON.parse(u2f_data.sigs);
+
 		setTimeout(function() {
 			console.log("Register: ", u2f_data.request);
 			$u2f_reg.text('Now insert (and tap) your Security Key')
