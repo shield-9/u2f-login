@@ -25,6 +25,19 @@ jQuery(document).ready(function($) {
 
 			u2f.register([u2f_data.request], u2f_data.sigs, function(data) {
 				console.log("Register callback", data);
+				$.post(
+					u2f_data.ajax_url,
+					{
+						action: "u2f_register",
+						data: data
+					}
+				)
+					.done(function( data ){
+						console.log('Woo!', data );
+					})
+					.fail(function( data ){
+						console.log('Oops!');
+					});
 			//	$('#bind-data').val(JSON.stringify(data));
 			//	$('#bind-form').submit();
 			});

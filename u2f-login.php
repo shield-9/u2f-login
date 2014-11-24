@@ -55,6 +55,9 @@ class U2F {
 		add_action('admin_menu', array( &$this, 'users_menu') );
 		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
 		add_action('admin_enqueue_scripts', array( &$this, 'admin_enqueue_assets') );
+		if( is_admin() ) {
+			add_action( 'wp_ajax_u2f_register', array( &$this, 'register') );
+		}
 
 		add_filter('plugin_row_meta', array( &$this, 'plugin_row_meta'), 10, 2);
 	}
@@ -132,7 +135,8 @@ class U2F {
 				list($req,$sigs) = $data;
 				$data = array(
 					'request' => json_encode( $req ),
-					'sigs'    => json_encode( $sigs )
+					'sigs'    => json_encode( $sigs ),
+					'ajax_url' => admin_url( 'admin-ajax.php')
 				);
 				wp_localize_script('u2f-admin', 'u2f_data', $data );
 			} catch( Exception $e ) {
@@ -140,6 +144,11 @@ class U2F {
 			}
 
 		}
+	}
+	
+	public function register() {
+		var_dump($_POST);
+		die();
 	}
 
 	static function plugin_textdomain() {
