@@ -6,6 +6,12 @@
 	margin: 4.5px 0 4.5px 6px;
 }
 
+@media screen and (max-width: 782px) {
+	.circle {
+		vertical-align: middle;
+	}
+}
+
 .semicircle {
 	position: absolute;
 	content: '';
