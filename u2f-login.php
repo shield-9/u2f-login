@@ -139,22 +139,43 @@ class U2F {
 	public function register() {
 		try {
 			$reg = $this->u2f->doRegister( get_transient('u2f_register_request'), (object) $_POST['data'] );
-			$reg = array(
-				'name'       => 'New Security Key',
-				'added'       => time(),
-				'last_used'   => time(),
-				'keyHandle'   => $reg->keyHandle,
-				'publicKey'   => $reg->publicKey,
-				'certificate' => $reg->certificate,
-				'counter'     => $reg->counter,
-			);
-			add_user_meta( get_current_user_id(), 'u2f_registered_key', $reg );
+
+			self::add_security_key( get_current_user_id(), $reg );
 		} catch( Exception $e ) {
 			echo "alert('error: " . $e->getMessage() . "');";
 		} finally {
 			delete_transient('u2f_register_request');
 			die();
 		}
+	}
+
+	static function add_security_key( $user_id, $register ) {
+		if( !is_numeric( $user_id ) ) {
+			throw new \InvalidArgumentException('$user_id of add_security_key() method only accepts int.');
+		}
+
+		if(
+			!is_object( $register )
+			|| !property_exists( $register, 'keyHandle') || empty( $register->keyHandle )
+			|| !property_exists( $register, 'publicKey') || empty( $register->publicKey )
+			|| !property_exists( $register, 'certificate') || empty( $register->certificate )
+			|| !property_exists( $register, 'counter') || ( 0 != $register->counter )
+		) {
+			throw new \InvalidArgumentException('$register of add_security_key() method only accepts Registration.');
+		}
+
+		$register = array(
+			'keyHandle'   => $register->keyHandle,
+			'publicKey'   => $register->publicKey,
+			'certificate' => $register->certificate,
+			'counter'     => $register->counter,
+		);
+
+		$register['name']      = 'New Security Key';
+		$register['added']     = time();
+		$register['last_used'] = $register['added'];
+
+		add_user_meta( $user_id, 'u2f_registered_key', $register );
 	}
 
 	static function delete_security_key( $user_id, $keyHandle ) {
