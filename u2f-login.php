@@ -157,6 +157,44 @@ class U2F {
 		}
 	}
 
+	static function delete_security_key( $user_id, $keyHandle ) {
+		global $wpdb;
+
+		if( !is_numeric( $user_id ) || !$keyHandle ) {
+			return false;
+		}
+
+		$user_id = absint( $user_id );
+		if( !$user_id ) {
+			return false;
+		}
+
+		$table = $wpdb->usermeta;
+
+		$keyHandle = wp_unslash( $keyHandle );
+		$keyHandle = maybe_serialize( $keyHandle );
+
+		$query = $wpdb->prepare("SELECT umeta_id FROM $table WHERE meta_key = 'u2f_registered_key' AND user_id = %d", $user_id );
+
+		if( $keyHandle )
+			$query .= $wpdb->prepare(" AND meta_value LIKE %s", '%:"' . $keyHandle . '";s:%');
+
+		$meta_ids = $wpdb->get_col( $query );
+		if( !count( $meta_ids ) )
+			return false;
+
+		$query = "DELETE FROM $table WHERE umeta_id IN( " . implode( ',', $meta_ids ) . " )";
+
+		$count = $wpdb->query($query);
+
+		if( !$count )
+			return false;
+
+		wp_cache_delete( $user_id, 'user_meta');
+
+		return true;
+	}
+
 	static function plugin_textdomain() {
 		load_plugin_textdomain('u2f', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/');
 	}

@@ -81,14 +81,12 @@ class U2F_List_Table extends WP_List_Table {
 	}
 
 	function process_bulk_action() {
-		if( !isset( $_GET['id'] ) or !is_array( $_GET['id'] ) )
+		if( !isset( $_GET['key'] ) or !is_array( $_GET['key'] ) )
 			return false;
 		switch( $this->current_action() ) {
 			case 'delete':
-				foreach( $_GET['id'] as $id ) {
-					/**
-					 * Delete Security Key Here
-					 */
+				foreach( $_GET['key'] as $key ) {
+					U2F::delete_security_key( get_current_user_id(), $key );
 				}
 				break;
 		}
