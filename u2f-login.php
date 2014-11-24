@@ -131,8 +131,8 @@ class U2F {
 				$data = $this->u2f->getRegisterData( array() );
 				list($req,$sigs) = $data;
 				$data = array(
-					'req' => json_encode( $req ),
-					'sigs' => json_encode( $sigs )
+					'request' => json_encode( $req ),
+					'sigs'    => json_encode( $sigs )
 				);
 				wp_localize_script('u2f-admin', 'u2f_data', $data );
 			} catch( Exception $e ) {
