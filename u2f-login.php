@@ -116,6 +116,7 @@ class U2F {
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
 			<div class="button button-primary button-large" id="u2f-register">
 				<?php _e('Register', 'u2f'); ?>
+				<?php var_dump(get_user_meta( get_current_user_id(), 'u2f_registered_key')); ?>
 			</div>
 		</div><!-- wrap -->
 		<?php
@@ -133,6 +134,9 @@ class U2F {
 			try {
 				$data = $this->u2f->getRegisterData( array() );
 				list($req,$sigs) = $data;
+
+
+				set_transient('u2f_register_request', $req, HOUR_IN_SECONDS );
 				$data = array(
 					'request' => json_encode( $req ),
 					'sigs'    => json_encode( $sigs ),
@@ -147,8 +151,15 @@ class U2F {
 	}
 	
 	public function register() {
-		var_dump($_POST);
-		die();
+		try {
+			$reg = $this->u2f->doRegister( get_transient('u2f_register_request'), (object) $_POST['data'] );
+			add_user_meta( get_current_user_id(), 'u2f_registered_key', $reg );
+		} catch( Exception $e ) {
+			echo "alert('error: " . $e->getMessage() . "');";
+		} finally {
+			delete_transient('u2f_register_request');
+			die();
+		}
 	}
 
 	static function plugin_textdomain() {
