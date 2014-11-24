@@ -31,6 +31,8 @@ add_action('init', array('U2F', 'init') );
 class U2F {
 	static $instance;
 
+	private $u2f;
+
 	const VERSION = '0.1.0-dev';
 
 	static function init() {
@@ -46,6 +48,9 @@ class U2F {
 	}
 
 	private function __construct() {
+		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/autoload.php');
+		$this->u2f = new u2flib_server\U2F( home_url() );
+
 	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
 		add_action('admin_menu', array( &$this, 'users_menu') );
 		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
@@ -74,9 +79,6 @@ class U2F {
 	}
 
 	public function render_users_menu() {
-		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/autoload.php');
-		$u2f = new u2flib_server\U2F( home_url() );
-
 		if( ! class_exists('WP_List_Table') ) {
 			require_once( ABSPATH.'wp-admin/includes/class-wp-list-table.php');
 		}
@@ -111,19 +113,6 @@ class U2F {
 			<h3><?php _e('Add another Security Key', 'u2f'); ?></h3>
 			<div class="button button-primary button-large" id="u2f-register">
 				<?php _e('Register', 'u2f'); ?>
-		<?php
-		try {
-			$data = $u2f->getRegisterData( array() );
-		} catch( Exception $e ) {
-			echo "error: " . $e->getMessage();
-		}
-
-		list($req,$sigs) = $data;
-		$_SESSION['regReq'] = json_encode($req);
-		echo "var req = " . json_encode($req) . ";";
-		echo "var sigs = " . json_encode($sigs) . ";";
-		echo "var username = '" . $user->name . "';";
-		?>
 			</div>
 		</div><!-- wrap -->
 		<?php
@@ -137,6 +126,19 @@ class U2F {
 		if('users_page_security-key' == $hook ) {
 			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.js', array('jquery'), self::VERSION, true);
 			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.css', array(), self::VERSION);
+
+			try {
+				$data = $this->u2f->getRegisterData( array() );
+				list($req,$sigs) = $data;
+				$data = array(
+					'req' => json_encode( $req ),
+					'sigs' => json_encode( $sigs )
+				);
+				wp_localize_script('u2f-admin', 'u2f_data', $data );
+			} catch( Exception $e ) {
+				// wp_die()?
+			}
+
 		}
 	}
 
