@@ -87,6 +87,11 @@ class U2F_List_Table extends WP_List_Table {
 			case 'delete':
 				foreach( $_GET['key'] as $key ) {
 					U2F::delete_security_key( get_current_user_id(), $key );
+					foreach( $this->data as $index => $data ) {
+						if( $key == $data['keyHandle'] ) {
+							unset( $this->data[ $index ] );
+						}
+					}
 				}
 				break;
 		}
