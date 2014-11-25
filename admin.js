@@ -45,8 +45,8 @@ jQuery(document).ready(function($) {
 						console.log('Woo!', data );
 						$u2f_reg.text('Registered');
 					})
-					.fail(function( data ){
-						console.log('Oops!');
+					.fail(function( jqXHR, textStatus, errorThrown ){
+						console.log('Oops!', jqXHR );
 						$u2f_reg.text('Failed');
 					});
 			//	$('#bind-data').val(JSON.stringify(data));
