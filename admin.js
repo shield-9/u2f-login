@@ -43,9 +43,11 @@ jQuery(document).ready(function($) {
 				)
 					.done(function( data ){
 						console.log('Woo!', data );
+						$u2f_reg.text('Registered');
 					})
 					.fail(function( data ){
 						console.log('Oops!');
+						$u2f_reg.text('Failed');
 					});
 			//	$('#bind-data').val(JSON.stringify(data));
 			//	$('#bind-form').submit();
