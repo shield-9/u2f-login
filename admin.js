@@ -25,6 +25,15 @@ jQuery(document).ready(function($) {
 
 			u2f.register([u2f_data.request], u2f_data.sigs, function(data) {
 				console.log("Register callback", data);
+
+				$u2f_reg.text('Please Wait')
+					.append('<div class="circle">')
+					.children(".circle")
+					.append('<div class="semicircle">')
+					.append('<div class="semicircle">')
+					.append('<div class="semicircle">')
+					.append('<div class="semicircle">');
+
 				$.post(
 					u2f_data.ajax_url,
 					{
