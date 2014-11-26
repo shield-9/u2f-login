@@ -49,6 +49,11 @@
 
 							console.log('Registered successfully');
 							$u2f_reg.text('Registered');
+							/**
+							 * TODO
+							 *
+							 * * Update List Table
+							 */
 						} else {
 							history.pushState('', '', location.href + '&u2f_status=failed');
 
