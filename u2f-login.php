@@ -137,14 +137,25 @@ class U2F {
 	}
 	
 	public function register() {
+		header('Content-Type: application/json');
+
 		try {
 			$reg = $this->u2f->doRegister( get_transient('u2f_register_request'), (object) $_POST['data'] );
 
 			self::add_security_key( get_current_user_id(), $reg );
+
+			$response = array(
+				'success' =>true,
+			);
 		} catch( Exception $e ) {
-			echo "alert('error: " . $e->getMessage() . "');";
+			$response = array(
+				'errorCode' => $e->getCode(),
+				'errorText' => $e->getMessage(),
+			);
 		} finally {
 			delete_transient('u2f_register_request');
+
+			echo json_encode( $response );
 			die();
 		}
 	}

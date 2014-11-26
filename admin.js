@@ -42,12 +42,22 @@ jQuery(document).ready(function($) {
 					}
 				)
 					.done(function( data ){
-						console.log('Woo!', data );
-						$u2f_reg.text('Registered');
+						console.log('Ajax Response', data );
+						if( data.success ) {
+							$u2f_reg.text('Registered');
+
+							history.pushState('', '', location.href + '&u2f_status=registered');
+						} else if( data.errorCode ) {
+							$u2f_reg.text('Failed');
+
+							history.pushState('', '', location.href + '&u2f_status=failed');
+						}
 					})
 					.fail(function( jqXHR, textStatus, errorThrown ){
-						console.log('Oops!', jqXHR );
+						console.log('Ajax Response(Bad HTTP Status)', jqXHR );
 						$u2f_reg.text('Failed');
+
+						history.pushState('', '', location.href + '&u2f_status=failed');
 					});
 			//	$('#bind-data').val(JSON.stringify(data));
 			//	$('#bind-form').submit();
