@@ -91,4 +91,12 @@
 			});
 		}, 1000);
 	});
+
+	if(typeof u2f === 'undefined') {
+		$u2f_reg.text('Your browser doesn\'t support U2F API.')
+			.removeClass('button-primary')
+			.css('cursor', 'not-allowed')
+			.unbind('click');
+	}
+
 })(jQuery);
