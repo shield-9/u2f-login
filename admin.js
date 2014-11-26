@@ -1,4 +1,4 @@
-jQuery(document).ready(function($) {
+(function($) {
 	var registering = false;
 
 	$u2f_reg = $("#u2f-register");
@@ -6,7 +6,7 @@ jQuery(document).ready(function($) {
 		if( registering ) {
 			return false;
 		} else {
-			registering = !registering;
+			registering = true;
 		}
 
 		u2f_data.request = JSON.parse(u2f_data.request);
@@ -41,27 +41,49 @@ jQuery(document).ready(function($) {
 						data: data
 					}
 				)
-					.done(function( data ){
-						console.log('Ajax Response', data );
-						if( data.success ) {
-							$u2f_reg.text('Registered');
+					.done(function( data, textStatus, jqXHR ){
+						console.log('Ajax Response', jqXHR );
 
+						if( data.success ) {
 							history.pushState('', '', location.href + '&u2f_status=registered');
-						} else if( data.errorCode ) {
+
+							console.log('Registered successfully');
+							$u2f_reg.text('Registered');
+						} else {
+							history.pushState('', '', location.href + '&u2f_status=failed');
+
+							console.log('Error occured');
 							$u2f_reg.text('Failed');
 
-							history.pushState('', '', location.href + '&u2f_status=failed');
+							if( data.errorCode ) {
+								alert(
+									'Sorry, we are failed to register your security key.\n'
+									+ ' * Error Code: ' + data.errorCode + '\n'
+									+ ' * Status Message, Browser-side Error Code: ' + data.errorText
+								);
+							} else {
+								alert(
+									'Sorry, we are failed to register your security key. '
+									+ 'We have no detailed information. Please contact server administrator.'
+								);
+							}
 						}
 					})
 					.fail(function( jqXHR, textStatus, errorThrown ){
+						history.pushState('', '', location.href + '&u2f_status=failed');
+
 						console.log('Ajax Response(Bad HTTP Status)', jqXHR );
 						$u2f_reg.text('Failed');
 
-						history.pushState('', '', location.href + '&u2f_status=failed');
+						alert(
+							'Sorry, we are failed to register your security key. '
+							+ 'We have no detailed information. Please contact server administrator.'
+						);
+					})
+					.always(function( data_jqXHR, textStatus, jqXHR_errorThrown ){
+						registering = false;
 					});
-			//	$('#bind-data').val(JSON.stringify(data));
-			//	$('#bind-form').submit();
 			});
 		}, 1000);
 	});
-});
+})(jQuery);
