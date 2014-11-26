@@ -67,7 +67,7 @@ class U2F_List_Table extends WP_List_Table {
 		switch($column_name) {
 			case 'added':
 			case 'last_used':
-				return isset( $item[ $column_name ] ) ? date( __('j M, Y @ G:i:s', 'u2f'), $item[ $column_name ] ) : __('Not Set', 'u2f');
+				return isset( $item[ $column_name ] ) ? date_i18n( __('M j, Y @ G:i'), $item[ $column_name ] ) : __('Not Set', 'u2f');
 			default:
 				return $item[ $column_name ];
 		}

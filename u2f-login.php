@@ -185,7 +185,7 @@ class U2F {
 		);
 
 		$register['name']      = 'New Security Key';
-		$register['added']     = time();
+		$register['added']     = current_time('timestamp');
 		$register['last_used'] = $register['added'];
 
 		add_user_meta( $user_id, 'u2f_registered_key', $register );
