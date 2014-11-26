@@ -113,9 +113,11 @@ class U2F {
 	}
 
 	public function admin_enqueue_assets( $hook ) {
+		$min = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? '' : '.min';
+
 		if('users_page_security-key' == $hook ) {
-			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.js', array('jquery'), self::VERSION, true);
-			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . 'admin.css', array(), self::VERSION);
+			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.js", array('jquery'), self::VERSION, true);
+			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.css", array(), self::VERSION);
 
 			try {
 				$data = $this->u2f->getRegisterData( array() );
