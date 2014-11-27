@@ -52,6 +52,9 @@ class U2F {
 		$this->u2f = new u2flib_server\U2F( set_url_scheme('//' . $_SERVER['HTTP_HOST'] ) );
 
 		add_action('login_enqueue_scripts', array( &$this, 'login_enqueue_assets') );
+		add_action('login_head', array( &$this, 'admin_print_scripts') );
+		add_action('login_form', array( &$this, 'login_form') );
+		add_action( 'wp_ajax_nopriv_u2f_login', array( &$this, 'verify_credentials') );
 	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
 
 		add_action('admin_menu', array( &$this, 'users_menu') );
@@ -71,9 +74,103 @@ class U2F {
 		wp_enqueue_style('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.css", array(), self::VERSION);
 
 		$data = array(
-			'ajax_url' => admin_url( 'admin-ajax.php')
+			'ajax_url' => admin_url( 'admin-ajax.php'),
+			
 		);
+
+		if( isset( $_GET['u2f_avail'] ) && 'false' == $_GET['u2f_avail'] ) {
+			$data['u2f_avail'] = 'false';
+		}
+
+		$strings = array(
+			'Wait'            => __('Wait...', 'u2f'),
+			'Login'           => __('Log In'),
+			'U2FGuide'        => __('Now insert (and tap) your Security Key', 'u2f'),
+			'LostKeyGuide'    => __('Did you lost or damaged your Security Key?', 'u2f'),
+			'EmailTokenGuide' => __('Check your inbox and enter the token', 'u2f'),
+		);
+
 		wp_localize_script('u2f-login', 'u2f_data', $data );
+		wp_localize_script('u2f-login', 'u2f_l10n', $strings );
+	}
+
+	public function login_form() {
+		echo '<input type="hidden" name="u2f_response" id="u2f_response" />' . PHP_EOL;
+		echo '<input type="hidden" name="method" id="method" />' . PHP_EOL;
+	}
+
+	public function verify_credentials() {
+		header('Content-Type: application/json');
+
+		if( !empty( $_POST['data']['log'] ) )
+			$credentials['user_login'] = $_POST['data']['log'];
+		if( !empty( $_POST['data']['pwd'] ) )
+			$credentials['user_password'] = $_POST['data']['pwd'];
+
+
+		$user = wp_authenticate( $credentials['user_login'], $credentials['user_password'] );
+
+		if( !is_wp_error( $user ) ) {
+			if( $_POST['data']['u2f'] != 'false') {
+				$keys = get_user_meta( $user->ID, 'u2f_registered_key');
+				foreach( $keys as $index => $key ) {
+					$keys[ $index ] = (object) $key;
+				}
+
+				try {
+					$requests = array(
+						'success' => true,
+						'method'  => 'u2f',
+						'data'    => $this->u2f->getAuthenticateData( $keys ),
+					);
+					set_transient('u2f_login_request_' . $user->ID, $requests, 30 * MINUTE_IN_SECONDS );
+				} catch( Exception $e ) {
+					$requests = array(
+						'error' => array(
+							'code'   => $e->getCode(),
+							'message' => $e->getMessage(),
+						),
+					);
+				} finally {
+					echo json_encode( $requests );
+					die();
+				}
+			} else {
+				/**
+				 * Gen and Send Email Token here.
+				 */
+				$requests = array(
+					'success' => true,
+					'method'  => 'mailtoken',
+				);
+				echo json_encode( $requests );
+				die();
+			}
+		}
+
+		$errors = $user;
+
+		$errors = apply_filters( 'wp_login_errors', $errors );
+
+		if( $errors->get_error_code() ) {
+			$msgs = array(
+				'message' => array(),
+				'error'   => array(),
+			);
+
+			foreach( $errors->get_error_codes() as $code ) {
+				$severity = $errors->get_error_data( $code );
+				foreach( $errors->get_error_messages( $code ) as $error_message ) {
+					if( 'message' == $severity )
+						$msgs['message'][] = $error_message;
+					else
+						$msgs['error'][] = $error_message;
+				}
+			}
+		}
+
+		echo json_encode( $msgs );
+		die();
 	}
 
 	public function authenticate( $user, $username, $password ) {
