@@ -51,7 +51,9 @@ class U2F {
 		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/autoload.php');
 		$this->u2f = new u2flib_server\U2F( set_url_scheme('//' . $_SERVER['HTTP_HOST'] ) );
 
+		add_action('login_enqueue_scripts', array( &$this, 'login_enqueue_assets') );
 	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
+
 		add_action('admin_menu', array( &$this, 'users_menu') );
 		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
 		add_action('admin_enqueue_scripts', array( &$this, 'admin_enqueue_assets') );
@@ -60,6 +62,18 @@ class U2F {
 		}
 
 		add_filter('plugin_row_meta', array( &$this, 'plugin_row_meta'), 10, 2);
+	}
+
+	public function login_enqueue_assets() {
+		$min = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? '' : '.min';
+
+		wp_enqueue_script('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.js", array('jquery'), self::VERSION, true);
+		wp_enqueue_style('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.css", array(), self::VERSION);
+
+		$data = array(
+			'ajax_url' => admin_url( 'admin-ajax.php')
+		);
+		wp_localize_script('u2f-login', 'u2f_data', $data );
 	}
 
 	public function authenticate( $user, $username, $password ) {
