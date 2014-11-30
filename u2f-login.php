@@ -55,7 +55,7 @@ class U2F {
 		add_action('login_head', array( &$this, 'admin_print_scripts') );
 		add_action('login_form', array( &$this, 'login_form') );
 		add_action( 'wp_ajax_nopriv_u2f_login', array( &$this, 'verify_credentials') );
-	//	add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
+		add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
 
 		add_action('admin_menu', array( &$this, 'users_menu') );
 		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
@@ -118,12 +118,13 @@ class U2F {
 				}
 
 				try {
+					$data = $this->u2f->getAuthenticateData( $keys );
 					$requests = array(
 						'success' => true,
 						'method'  => 'u2f',
-						'data'    => $this->u2f->getAuthenticateData( $keys ),
+						'data'    => $data,
 					);
-					set_transient('u2f_login_request_' . $user->ID, $requests, 30 * MINUTE_IN_SECONDS );
+					set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
 				} catch( Exception $e ) {
 					$requests = array(
 						'error' => array(
@@ -174,18 +175,40 @@ class U2F {
 	}
 
 	public function authenticate( $user, $username, $password ) {
-		if(is_a($user, 'WP_User') ) {
+		if( !is_a( $user, 'WP_User') ) {
 			return $user;
 		}
 
-		if( !empty( $_POST['u2f_token'] )) {
-			$u2f_token = $_POST['u2f_token'];
-			/*
-			Validate token!!
-			*/
-		}
+		switch( $_POST['method'] ) {
+			case 'u2f':
+				$requests = get_transient('u2f_login_request_' . $user->ID );
+			//	delete_transient('u2f_login_request_' . $user->ID );
 
-		return false;
+				$response = json_decode( stripslashes( $_POST['u2f_response'] ) );
+
+				$keys = get_user_meta( $user->ID, 'u2f_registered_key');
+				foreach( $keys as $index => $key ) {
+					$keys[ $index ] = (object) $key;
+				}
+
+				try {
+					$reg = $this->u2f->doAuthenticate( $requests, $keys, $response );
+					/**
+					 * Update Database with $reg
+					 */
+
+					return $user;
+				} catch( Exception $e ) {
+					return new WP_Error('invalid_security_key', __('<strong>ERROR</strong>: Invalid Security Key.', 'u2f') );
+				}
+			case 'mailtoken':
+				/**
+				 * Validate Email Token here.
+				 */
+				return $user;
+			default:
+				return new WP_Error('invalid_auth', __('<strong>ERROR</strong>: Invalid Authentication Attempts.', 'u2f') );
+		}
 	}
 
 	public function users_menu() {
