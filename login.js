@@ -51,19 +51,16 @@
 					}
 				} else {
 					console.log('Error occured');
-					$loginform.before('<div id="login_error">Error Connecting Server</div>');
 
-					if( data.errorCode ) {
-						alert(
-							'Sorry, we are failed to authenticate you.\n'
-							+ ' * Error Code: ' + data.errorCode + '\n'
-							+ ' * Status Message, Browser-side Error Code: ' + data.errorText
-						);
-					} else {
-						alert(
-							'Sorry, we are failed to authenticate you. '
-							+ 'We have no detailed information. Please contact server administrator.'
-						);
+					if( data.message ) {
+						data.message.forEach( function( message ) {
+							$loginform.before('<p class="message">' + message + '</p>');
+						});
+					}
+					if( data.error ) {
+						data.error.forEach( function( error ) {
+							$loginform.before('<div id="login_error">' + error + '</div>');
+						});
 					}
 				}
 			})
