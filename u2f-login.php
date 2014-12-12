@@ -179,6 +179,10 @@ class U2F {
 			return $user;
 		}
 
+		if( doing_action('wp_ajax_nopriv_u2f_login') ) {
+			return $user;
+		}
+
 		switch( $_POST['method'] ) {
 			case 'u2f':
 				$requests = get_transient('u2f_login_request_' . $user->ID );
