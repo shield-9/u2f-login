@@ -110,59 +110,61 @@ class U2F {
 
 		$user = wp_authenticate( $credentials['user_login'], $credentials['user_password'] );
 
-		if( !is_wp_error( $user ) ) {
-			if( $_POST['data']['u2f'] != 'false') {
-				$keys = get_user_meta( $user->ID, 'u2f_registered_key');
-				foreach( $keys as $index => $key ) {
-					$keys[ $index ] = (object) $key;
-				}
+		if( is_wp_error( $user ) ) {
+			$errors = $user;
 
-				try {
-					$data = $this->u2f->getAuthenticateData( $keys );
-					$requests = array(
-						'success' => true,
-						'method'  => 'u2f',
-						'data'    => $data,
-					);
-					set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
-				} catch( Exception $e ) {
-					$requests = array(
-						'error' => array(
-							'code'   => $e->getCode(),
-							'message' => $e->getMessage(),
-						),
-					);
-				} finally {
-					echo json_encode( $requests );
-					die();
-				}
-			} else {
-				/**
-				 * Gen and Send Email Token here.
-				 */
-				$requests = array(
-					'success' => true,
-					'method'  => 'mailtoken',
-				);
-				echo json_encode( $requests );
-				die();
-			}
+			echo $this->export_error_data( $errors, 'json');
+			die();
 		}
 
-		$errors = $user;
+		if( $_POST['data']['u2f'] != 'false') {
+			$keys = get_user_meta( $user->ID, 'u2f_registered_key');
+			foreach( $keys as $index => $key ) {
+				$keys[ $index ] = (object) $key;
+			}
 
-		$errors = apply_filters( 'wp_login_errors', $errors );
+			try {
+				$data = $this->u2f->getAuthenticateData( $keys );
+				$response = array(
+					'success' => true,
+					'method'  => 'u2f',
+					'data'    => $data,
+				);
+				set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
+			} catch( Exception $e ) {
+				$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
+				$response = $this->export_error_data( $errors, 'array');
+			} finally {
+				echo json_encode( $response );
+				die();
+			}
+		} else {
+			/**
+			 * Gen and Send Email Token here.
+			 */
+			$response = array(
+				'success' => true,
+				'method'  => 'mailtoken',
+			);
+			echo json_encode( $response );
+			die();
+		}
+	}
+
+	private function export_error_data( $errors, $type ) {
+		$errors = apply_filters('wp_login_errors', $errors );
+
+		$msgs = array(
+			'message' => array(),
+			'error'   => array(),
+		);
 
 		if( $errors->get_error_code() ) {
-			$msgs = array(
-				'message' => array(),
-				'error'   => array(),
-			);
 
 			foreach( $errors->get_error_codes() as $code ) {
 				$severity = $errors->get_error_data( $code );
 				foreach( $errors->get_error_messages( $code ) as $error_message ) {
-					if( 'message' == $severity )
+					if('message' == $severity )
 						$msgs['message'][] = $error_message;
 					else
 						$msgs['error'][] = $error_message;
@@ -170,8 +172,14 @@ class U2F {
 			}
 		}
 
-		echo json_encode( $msgs );
-		die();
+		switch( $type ) {
+			case 'array':
+				return $msgs;
+			case 'json':
+				return json_encode( $msgs );
+			default:
+				return false;
+		}
 	}
 
 	public function authenticate( $user, $username, $password ) {
