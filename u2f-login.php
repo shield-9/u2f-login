@@ -262,8 +262,10 @@ class U2F {
 			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.js", array('jquery'), self::VERSION, true);
 			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.css", array(), self::VERSION);
 
+			$keys = self::get_security_keys( get_current_user_id() );
+
 			try {
-				$data = $this->u2f->getRegisterData( array() );
+				$data = $this->u2f->getRegisterData( $keys );
 				list($req,$sigs) = $data;
 
 
