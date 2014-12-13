@@ -198,10 +198,7 @@ class U2F {
 
 				$response = json_decode( stripslashes( $_POST['u2f_response'] ) );
 
-				$keys = get_user_meta( $user->ID, 'u2f_registered_key');
-				foreach( $keys as $index => $key ) {
-					$keys[ $index ] = (object) $key;
-				}
+				$keys = self::get_security_keys( $user->ID );
 
 				try {
 					$reg = $this->u2f->doAuthenticate( $requests, $keys, $response );
@@ -335,6 +332,19 @@ class U2F {
 		$register['last_used'] = $register['added'];
 
 		add_user_meta( $user_id, 'u2f_registered_key', $register );
+	}
+
+	static function get_security_keys( $user_id ) {
+		if( !is_numeric( $user_id ) ) {
+			throw new \InvalidArgumentException('$user_id of get_security_keys() method only accepts int.');
+		}
+
+		$keys = get_user_meta( $user_id, 'u2f_registered_key');
+		foreach( $keys as $index => $key ) {
+			$keys[ $index ] = (object) $key;
+		}
+		
+		return $keys;
 	}
 
 	static function delete_security_key( $user_id, $keyHandle ) {
