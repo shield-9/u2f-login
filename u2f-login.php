@@ -107,7 +107,6 @@ class U2F {
 		if( !empty( $_POST['data']['pwd'] ) )
 			$credentials['user_password'] = $_POST['data']['pwd'];
 
-
 		$user = wp_authenticate( $credentials['user_login'], $credentials['user_password'] );
 
 		if( is_wp_error( $user ) ) {
@@ -267,7 +266,6 @@ class U2F {
 			try {
 				$data = $this->u2f->getRegisterData( $keys );
 				list($req,$sigs) = $data;
-
 
 				set_transient('u2f_register_request', $req, HOUR_IN_SECONDS );
 				$data = array(
