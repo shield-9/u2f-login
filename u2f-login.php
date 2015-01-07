@@ -48,7 +48,7 @@ class U2F {
 	}
 
 	private function __construct() {
-		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/autoload.php');
+		require_once( plugin_dir_path( __FILE__ ) . 'lib/php-u2flib-server/src/u2flib_server/U2F.php');
 		$this->u2f = new u2flib_server\U2F( set_url_scheme('//' . $_SERVER['HTTP_HOST'] ) );
 
 		add_action('login_enqueue_scripts', array( &$this, 'login_enqueue_assets') );
