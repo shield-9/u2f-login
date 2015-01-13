@@ -138,13 +138,20 @@ class U2F {
 				die();
 			}
 		} else {
-			/**
-			 * Gen and Send Email Token here.
-			 */
+			$token = trim( strtr( base64_encode( openssl_random_pseudo_bytes(4) ), '+/', '-_'), '=');
+			$hash = password_hash( $token, PASSWORD_DEFAULT);
+
 			$response = array(
-				'success' => true,
+				'success' => wp_mail(
+					sprintf('%s <%s>', $user->display_name, $user->user_email ),
+					__('[WordPress] Your authentication code', 'u2f'),
+					sprintf( __('Your authentication code is: %s'), $token ),
+					sprintf('From: WordPress <%s>', get_bloginfo('admin_email') )
+				),
 				'method'  => 'mailtoken',
 			);
+			set_transient('u2f_login_token_hash_' . $user->ID, $hash, 30 * MINUTE_IN_SECONDS );
+
 			echo json_encode( $response );
 			die();
 		}
