@@ -217,10 +217,13 @@ class U2F {
 					return new WP_Error('invalid_security_key', __('<strong>ERROR</strong>: Invalid Security Key.', 'u2f') );
 				}
 			case 'mailtoken':
-				/**
-				 * Validate Email Token here.
-				 */
-				return $user;
+				$hash = get_transient('u2f_login_token_hash_' . $user->ID );
+
+				if( password_verify( $_POST['token'], $hash ) ) {
+					return $user;
+				} else {
+					return new WP_Error('invalid_token', __('<strong>ERROR</strong>: Invalid Token.', 'u2f') );
+				}
 			default:
 				return new WP_Error('invalid_auth', __('<strong>ERROR</strong>: Invalid Authentication Attempts.', 'u2f') );
 		}
