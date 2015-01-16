@@ -220,9 +220,7 @@ class U2F {
 
 				try {
 					$reg = $this->u2f->doAuthenticate( $requests, $keys, $response );
-					/**
-					 * Update Database with $reg
-					 */
+					self::update_security_key( $user->ID, $reg );
 
 					return $user;
 				} catch( Exception $e ) {
@@ -365,6 +363,34 @@ class U2F {
 		if( $keys ) {
 			foreach( $keys as $index => $key ) {
 				$keys[ $index ] = (object) $key;
+			}
+		}
+
+		return $keys;
+	}
+
+	static function update_security_key( $user_id, $data ) {
+		if( !is_numeric( $user_id ) ) {
+			throw new \InvalidArgumentException('$user_id of update_security_key() method only accepts int.');
+		}
+
+		if(
+			!is_object( $data )
+			|| !property_exists( $data, 'keyHandle') || empty( $data->keyHandle )
+			|| !property_exists( $data, 'publicKey') || empty( $data->publicKey )
+			|| !property_exists( $data, 'certificate') || empty( $data->certificate )
+			|| !property_exists( $data, 'counter') || ( 0 == $data->counter )
+		) {
+			throw new \InvalidArgumentException('$data of update_security_key() method only accepts Registration.');
+		}
+
+		$keys = get_user_meta( $user_id, 'u2f_registered_key');
+		if( $keys ) {
+			foreach( $keys as $index => $key ) {
+				if( $key->keyHandle === $data->keyHandle ) {
+					update_user_meta( $user->ID, (array)$data, $key );
+					break;
+				}
 			}
 		}
 
