@@ -72,6 +72,7 @@ class U2F {
 
 		wp_enqueue_script('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.js", array('jquery'), self::VERSION, true);
 		wp_enqueue_style('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.css", array(), self::VERSION);
+		wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.css", array(), self::VERSION);
 
 		$data = array(
 			'ajax_url' => admin_url( 'admin-ajax.php'),

@@ -31,7 +31,14 @@
 
 					if( u2f_avail && data.method == 'u2f') {
 						$loginform.children().hide()
-							.parent().append('<p>' + u2f_l10n.U2FGuide + '</p>');
+							.parent().append('<div class="u2f-guide">' + u2f_l10n.U2FGuide + '</div>')
+							.children(".u2f-guide")
+							.append('<div class="circle">')
+							.children(".circle")
+							.append('<div class="semicircle">')
+							.append('<div class="semicircle">')
+							.append('<div class="semicircle">')
+							.append('<div class="semicircle">');
 						$loginform.parent().children('#nav').html('<a href="wp-login.php?u2f_avail=false" title="">' + u2f_l10n.LostKeyGuide + '</a>');
 
 						setTimeout(function() {
