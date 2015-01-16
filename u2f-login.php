@@ -119,14 +119,10 @@ class U2F {
 		$type = 'mailtoken';
 
 		if( $_POST['data']['u2f'] != 'false') {
-			$keys = get_user_meta( $user->ID, 'u2f_registered_key');
+			$keys = self::get_security_keys( $user->ID );
 
 			if( $keys ) {
 				$type = 'u2f';
-
-				foreach( $keys as $index => $key ) {
-					$keys[ $index ] = (object) $key;
-				}
 			}
 		}
 
@@ -366,10 +362,12 @@ class U2F {
 		}
 
 		$keys = get_user_meta( $user_id, 'u2f_registered_key');
-		foreach( $keys as $index => $key ) {
-			$keys[ $index ] = (object) $key;
+		if( $keys ) {
+			foreach( $keys as $index => $key ) {
+				$keys[ $index ] = (object) $key;
+			}
 		}
-		
+
 		return $keys;
 	}
 
