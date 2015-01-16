@@ -116,44 +116,60 @@ class U2F {
 			die();
 		}
 
+		$type = 'mailtoken';
+
 		if( $_POST['data']['u2f'] != 'false') {
 			$keys = get_user_meta( $user->ID, 'u2f_registered_key');
-			foreach( $keys as $index => $key ) {
-				$keys[ $index ] = (object) $key;
-			}
 
-			try {
-				$data = $this->u2f->getAuthenticateData( $keys );
-				$response = array(
-					'success' => true,
-					'method'  => 'u2f',
-					'data'    => $data,
-				);
-				set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
-			} catch( Exception $e ) {
-				$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
-				$response = $this->export_error_data( $errors, 'array');
-			} finally {
-				echo json_encode( $response );
-				die();
-			}
-		} else {
-			$token = trim( strtr( base64_encode( openssl_random_pseudo_bytes(4) ), '+/', '-_'), '=');
-			$hash = password_hash( $token, PASSWORD_DEFAULT);
+			if( $keys ) {
+				$type = 'u2f';
 
-			$response = array(
-				'success' => wp_mail(
+				foreach( $keys as $index => $key ) {
+					$keys[ $index ] = (object) $key;
+				}
+			}
+		}
+
+		switch( $type ){
+			case 'u2f':
+				try {
+					$data = $this->u2f->getAuthenticateData( $keys );
+					$response = array(
+						'success' => true,
+						'method'  => 'u2f',
+						'data'    => $data,
+					);
+					set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
+				} catch( Exception $e ) {
+					$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
+					$response = $this->export_error_data( $errors, 'array');
+				} finally {
+					echo json_encode( $response );
+					die();
+				}
+			default:
+				$token = trim( strtr( base64_encode( openssl_random_pseudo_bytes(4) ), '+/', '-_'), '=');
+				$hash = password_hash( $token, PASSWORD_DEFAULT);
+				$mail_status = wp_mail(
 					sprintf('%s <%s>', $user->display_name, $user->user_email ),
 					__('[WordPress] Your authentication code', 'u2f'),
 					sprintf( __('Your authentication code is: %s'), $token ),
 					sprintf('From: WordPress <%s>', get_bloginfo('admin_email') )
-				),
-				'method'  => 'mailtoken',
-			);
-			set_transient('u2f_login_token_hash_' . $user->ID, $hash, 30 * MINUTE_IN_SECONDS );
+				);
 
-			echo json_encode( $response );
-			die();
+				if( $mail_status ) {
+					$response = array(
+						'success' => true,
+						'method'  => 'mailtoken',
+					);
+					set_transient('u2f_login_token_hash_' . $user->ID, $hash, 30 * MINUTE_IN_SECONDS );
+				} else {
+					$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
+					$response = $this->export_error_data( $errors, 'array');
+				}
+
+				echo json_encode( $response );
+				die();
 		}
 	}
 
