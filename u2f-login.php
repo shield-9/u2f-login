@@ -306,7 +306,7 @@ class U2F {
 		header('Content-Type: application/json');
 
 		try {
-			$reg = $this->u2f->doRegister( get_user_meta( get_current_user_id(), 'u2f_register_request'), (object) $_POST['data'] );
+			$reg = $this->u2f->doRegister( get_user_meta( get_current_user_id(), 'u2f_register_request', true), (object) $_POST['data'] );
 
 			self::add_security_key( get_current_user_id(), $reg );
 
