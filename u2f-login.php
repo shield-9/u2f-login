@@ -288,7 +288,7 @@ class U2F {
 				$data = $this->u2f->getRegisterData( $keys );
 				list($req,$sigs) = $data;
 
-				set_transient('u2f_register_request', $req, HOUR_IN_SECONDS );
+				update_user_meta( get_current_user_id(), 'u2f_register_request', $req );
 				$data = array(
 					'request' => json_encode( $req ),
 					'sigs'    => json_encode( $sigs ),
@@ -306,7 +306,7 @@ class U2F {
 		header('Content-Type: application/json');
 
 		try {
-			$reg = $this->u2f->doRegister( get_transient('u2f_register_request'), (object) $_POST['data'] );
+			$reg = $this->u2f->doRegister( get_user_meta( get_current_user_id(), 'u2f_register_request', true), (object) $_POST['data'] );
 
 			self::add_security_key( get_current_user_id(), $reg );
 
@@ -319,7 +319,7 @@ class U2F {
 				'errorText' => $e->getMessage(),
 			);
 		} finally {
-			delete_transient('u2f_register_request');
+			delete_user_meta( get_current_user_id(), 'u2f_register_request');
 
 			echo json_encode( $response );
 			die();
