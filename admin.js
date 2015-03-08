@@ -61,8 +61,25 @@
 							$u2f_reg.text('Failed');
 
 							if( data.errorCode ) {
+								var reasons = {
+									1: 'Some error occurred.',
+									2: 'The request cannot be processed.',
+									3: 'Client configuration is not supported.',
+									4: 'The presented device is not eligible for this request.',
+									5: 'Timeout reached before request could be satisfied.',
+								}
+
+								var reason = null;
+								if( 10 == data.errorCode ) { // u2flib_server\U2F::ERR_BAD_UA_RETURNING
+									var api_errorCode = data.errorText.match(/.+\s(\d)/)[1];
+									if( reasons[ api_errorCode ] ) {
+										reason = reasons[ api_errorCode ];
+									}
+								}
+
 								alert(
 									'Sorry, we are failed to register your security key.\n'
+									+ ' * Reason: ' + reason + '\n'
 									+ ' * Error Code: ' + data.errorCode + '\n'
 									+ ' * Status Message, Browser-side Error Code: ' + data.errorText
 								);
