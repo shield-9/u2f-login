@@ -136,7 +136,7 @@ class U2F {
 						'method'  => 'u2f',
 						'data'    => $data,
 					);
-					set_transient('u2f_login_request_' . $user->ID, $data, 30 * MINUTE_IN_SECONDS );
+					update_user_meta( $user->ID, 'u2f_login_request', $data );
 				} catch( Exception $e ) {
 					$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
 					$response = $this->export_error_data( $errors, 'array');
@@ -159,7 +159,7 @@ class U2F {
 						'success' => true,
 						'method'  => 'mailtoken',
 					);
-					set_transient('u2f_login_token_hash_' . $user->ID, $hash, 30 * MINUTE_IN_SECONDS );
+					update_user_meta( $user->ID, 'u2f_login_token_hash', $hash );
 				} else {
 					$errors = new WP_Error('internal_server_error', __('<strong>ERROR</strong>: An error occured in <strong>U2F Login</strong> plugin.', 'u2f') );
 					$response = $this->export_error_data( $errors, 'array');
@@ -212,8 +212,7 @@ class U2F {
 
 		switch( $_POST['method'] ) {
 			case 'u2f':
-				$requests = get_transient('u2f_login_request_' . $user->ID );
-			//	delete_transient('u2f_login_request_' . $user->ID );
+				$requests = get_user_meta( $user->ID, 'u2f_login_request', true);
 
 				$response = json_decode( stripslashes( $_POST['u2f_response'] ) );
 
@@ -228,7 +227,7 @@ class U2F {
 					return new WP_Error('invalid_security_key', __('<strong>ERROR</strong>: Invalid Security Key.', 'u2f') );
 				}
 			case 'mailtoken':
-				$hash = get_transient('u2f_login_token_hash_' . $user->ID );
+				$hash = get_user_meta( $user->ID, 'u2f_login_token_hash', true);
 
 				if( password_verify( $_POST['token'], $hash ) ) {
 					return $user;
