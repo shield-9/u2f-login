@@ -52,13 +52,11 @@ class U2F {
 		$this->u2f = new u2flib_server\U2F( set_url_scheme('//' . $_SERVER['HTTP_HOST'] ) );
 
 		add_action('login_enqueue_scripts', array( &$this, 'login_enqueue_assets') );
-		add_action('login_head', array( &$this, 'admin_print_scripts') );
 		add_action('login_form', array( &$this, 'login_form') );
 		add_action( 'wp_ajax_nopriv_u2f_login', array( &$this, 'verify_credentials') );
 		add_filter('authenticate', array( &$this, 'authenticate'), 25, 3);
 
 		add_action('admin_menu', array( &$this, 'users_menu') );
-		add_action('admin_print_scripts-users_page_security-key', array( &$this, 'admin_print_scripts') );
 		add_action('admin_enqueue_scripts', array( &$this, 'admin_enqueue_assets') );
 		if( is_admin() ) {
 			add_action( 'wp_ajax_u2f_register', array( &$this, 'register') );
@@ -70,7 +68,8 @@ class U2F {
 	public function login_enqueue_assets() {
 		$min = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_script('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.js", array('jquery'), self::VERSION, true);
+		wp_enqueue_script('u2f-api', plugin_dir_url( __FILE__ ) . "u2f-api.js", array(), self::VERSION, true);
+		wp_enqueue_script('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.js", array('jquery', 'u2f-api'), self::VERSION, true);
 		wp_enqueue_style('u2f-login', plugin_dir_url( __FILE__ ) . "login{$min}.css", array(), self::VERSION);
 		wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.css", array(), self::VERSION);
 
@@ -270,15 +269,12 @@ class U2F {
 		<?php
 	}
 
-	public function admin_print_scripts() {
-		echo '<script src="chrome-extension://pfboblefjcgdjicmnffhdgionmgcdmne/u2f-api.js"></script>' . PHP_EOL;
-	}
-
 	public function admin_enqueue_assets( $hook ) {
 		$min = ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? '' : '.min';
 
 		if('users_page_security-key' == $hook ) {
-			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.js", array('jquery'), self::VERSION, true);
+			wp_enqueue_script('u2f-api', plugin_dir_url( __FILE__ ) . "u2f-api.js", array(), self::VERSION, true);
+			wp_enqueue_script('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.js", array('jquery', 'u2f-api'), self::VERSION, true);
 			wp_enqueue_style('u2f-admin', plugin_dir_url( __FILE__ ) . "admin{$min}.css", array(), self::VERSION);
 
 			$keys = self::get_security_keys( get_current_user_id() );
