@@ -69,7 +69,7 @@
 									5: 'You probably did not find your security key. Timeout.',
 								}
 
-								var code = responseText.errorText.match(/Error Code: (\d)/i)[1];
+								var code = data.errorText.match(/Error Code: (\d)/i)[1];
 
 								alert(
 									'Sorry, we are failed to register your security key.\n'
