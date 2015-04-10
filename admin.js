@@ -61,8 +61,14 @@
 							$u2f_reg.text('Failed');
 
 							if( data.errorCode ) {
+								var meaning =	data.errorText.indexOf("Error code: 1") > -1 ? 'Some `Other Error` happened.'+'\n\n' :
+										data.errorText.indexOf("Error code: 2") > -1 ? 'You did not allow the website do identify your security key.'+'\n\n' :
+										data.errorText.indexOf("Error code: 3") > -1 ? 'Configuration Unsupported.'+'\n\n' :
+										data.errorText.indexOf("Error code: 4") > -1 ? 'This security key already seems to be registered. Device Ineligible.'+'\n\n' :
+										data.errorText.indexOf("Error code: 5") > -1 ? 'You probably did not find your security key. Timeout.'+'\n\n' :
+										'';												
 								alert(
-									'Sorry, we are failed to register your security key.\n'
+									meaning + 'Sorry, we are failed to register your security key.\n'
 									+ ' * Error Code: ' + data.errorCode + '\n'
 									+ ' * Status Message, Browser-side Error Code: ' + data.errorText
 								);
