@@ -29,8 +29,11 @@ With this plugin, you can use WordPress's login feature much safer even if your 
 
 ## Installation
 
-1. Upload the `u2f` folder to the `/wp-content/plugins/` directory.
-1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Clone the repo folder to the `/wp-content/plugins/` directory using the command #:git clone --recursive https://github.com/shield-9/u2f-login
+
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Navigate to Users > Your Security Key
+4. Click Add Security Key
 
 ## Frequently Asked Questions
 
