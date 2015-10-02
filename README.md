@@ -21,6 +21,7 @@ With this plugin, you can use WordPress's login feature much safer even if your 
 	1. Using PHP 5.5 or later
 	2. Using WordPress 4.0 or later
 	3. Owns FIDO U2F device (We recommend [FIDO U2F SECURITY KEY](https://www.yubico.com/products/yubikey-hardware/fido-u2f-security-key/) to get started.)
+	4. Chrome version 38 or higher for U2F fuctionality.
 
 ### License
 * Copyright (c) 2012-2014 [Daisuke Takahashi(Extend Wings)](http://www.extendwings.com/)
