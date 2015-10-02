@@ -21,6 +21,7 @@ With this plugin, you can use WordPress's login feature much safer even if your 
 	1. Using PHP 5.5 or later
 	2. Using WordPress 4.0 or later
 	3. Owns FIDO U2F device (We recommend [FIDO U2F SECURITY KEY](https://www.yubico.com/products/yubikey-hardware/fido-u2f-security-key/) to get started.)
+	4. Chrome version 40 or higher for U2F fuctionality.
 
 ### License
 * Copyright (c) 2012-2014 [Daisuke Takahashi(Extend Wings)](http://www.extendwings.com/)
@@ -29,8 +30,11 @@ With this plugin, you can use WordPress's login feature much safer even if your 
 
 ## Installation
 
-1. Upload the `u2f` folder to the `/wp-content/plugins/` directory.
-1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Clone the repo folder to the `/wp-content/plugins/` directory using the command #:git clone --recursive https://github.com/shield-9/u2f-login
+
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Navigate to Users > Your Security Key
+4. Click Add Security Key
 
 ## Frequently Asked Questions
 
